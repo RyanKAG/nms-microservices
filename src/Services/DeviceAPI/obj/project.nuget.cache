@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "VhhF+9Lq+m5RS4YrXQnYw8PJ5ZNBY8yPwTwXseq6AzVb+xlmbXOwQzb0qmPjJ2MmZHlp0T0Jkff978V3+cl9Tg==",
+  "dgSpecHash": "CdpFx3tAo0RyQhmX6ArcJWbIyb4eo/1RRGTrTx6Kdo3wEczOYIb3Lep0mKLuALN/d03m0B4YyCyBgyZFoL79Gw==",
   "success": true,
   "projectFilePath": "C:\\Users\\NTIS\\source\\repos\\NMS\\src\\Services\\DeviceAPI\\DeviceAPI.csproj",
   "expectedPackageFiles": [
@@ -24,7 +24,7 @@
     "C:\\Users\\NTIS\\.nuget\\packages\\microsoft.extensions.options\\5.0.0\\microsoft.extensions.options.5.0.0.nupkg.sha512",
     "C:\\Users\\NTIS\\.nuget\\packages\\microsoft.extensions.primitives\\5.0.0\\microsoft.extensions.primitives.5.0.0.nupkg.sha512",
     "C:\\Users\\NTIS\\.nuget\\packages\\microsoft.openapi\\1.2.3\\microsoft.openapi.1.2.3.nupkg.sha512",
-    "C:\\Users\\NTIS\\.nuget\\packages\\newtonsoft.json\\12.0.2\\newtonsoft.json.12.0.2.nupkg.sha512",
+    "C:\\Users\\NTIS\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
     "C:\\Users\\NTIS\\.nuget\\packages\\swashbuckle.aspnetcore\\5.6.3\\swashbuckle.aspnetcore.5.6.3.nupkg.sha512",
     "C:\\Users\\NTIS\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\5.6.3\\swashbuckle.aspnetcore.swagger.5.6.3.nupkg.sha512",
     "C:\\Users\\NTIS\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\5.6.3\\swashbuckle.aspnetcore.swaggergen.5.6.3.nupkg.sha512",

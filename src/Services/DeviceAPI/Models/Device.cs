@@ -2,9 +2,8 @@
 
 namespace DeviceAPI.Models
 {
-    public class Device
+    public class Device : BaseModel
     {
-        public Guid Id { get; set; }
         public string Name { get; set; }
         public string Ip { get; set; }
         public string MacAddress { get; set; }

@@ -2,9 +2,9 @@
 using DeviceAPI.Models;
 namespace DeviceAPI.Repository
 {
-    public class Context : DbContext
+    public class DeviceContext : DbContext
     {
-        public Context(DbContextOptions<Context> options) : base(options)
+        public DeviceContext(DbContextOptions<DeviceContext> options) : base(options)
         {
 
         }
@@ -13,6 +13,6 @@ namespace DeviceAPI.Repository
         {
         }
 
-        public DbSet<Device> Albums { get; set; }
+        public DbSet<Device> Devices { get; set; }
     }
 }
