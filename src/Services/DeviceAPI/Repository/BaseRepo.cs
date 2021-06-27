@@ -26,7 +26,7 @@ namespace DeviceAPI.Repository
         public Task<IQueryable<TModel>> Find(Expression<Func<TModel, bool>> expression)
         {
             throw new NotImplementedException();
-        }
+        } 
 
         public virtual async Task<TModel> GetByIdAsync(Guid id)
         {
