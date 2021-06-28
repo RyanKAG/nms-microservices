@@ -3,9 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
-using DeviceAPI.Dtos;
 using Microsoft.EntityFrameworkCore.Metadata;
+using DeviceAPI.Dtos;
 
 namespace DeviceAPI.Repository
 {
@@ -14,7 +15,7 @@ namespace DeviceAPI.Repository
     {
         Task<IQueryable<TModel>> Find(Expression<Func<TModel, bool>> expression);
         Task<TModel> GetByIdAsync(Guid id);
-        Task<IEnumerable<TModel>> GetAllAsync();
+        Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancellationToken);
 
         Task<bool> SaveChangesAsync();
 

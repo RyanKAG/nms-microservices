@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using DeviceAPI.Models;
+
 namespace DeviceAPI.Repository
 {
     public class DeviceContext : DbContext

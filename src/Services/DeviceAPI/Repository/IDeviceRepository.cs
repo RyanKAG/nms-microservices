@@ -1,6 +1,8 @@
-﻿namespace DeviceAPI.Repository
+﻿using DeviceAPI.Models;
+
+namespace DeviceAPI.Repository
 {
-    public interface IDeviceRepository
+    public interface IDeviceRepository : IRepository<Device>
     {
          
     }

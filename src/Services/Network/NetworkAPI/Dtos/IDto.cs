@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Network.API.Models
+namespace NetworkAPI.Dtos
 {
-    public interface IModel
+    public interface IDto
     {
         public Guid Id { get; set; }
     }

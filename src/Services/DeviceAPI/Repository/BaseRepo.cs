@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using DeviceAPI.Dtos;
 using DeviceAPI.Models;
 using DeviceAPI.Utils;
-using Microsoft.EntityFrameworkCore;
 
 namespace DeviceAPI.Repository
 {
@@ -33,9 +34,9 @@ namespace DeviceAPI.Repository
             return await _table.FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task<IEnumerable<TModel>> GetAllAsync()
+        public async Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancellationToken)
         {
-            PagedList<TModel> pagedList = await PagedList<TModel>.ToPagedList(_table, 1, 10);
+            PagedList<TModel> pagedList = await PagedList<TModel>.ToPagedList(_table, 1, 5, cancellationToken);
             return pagedList.Entities;
         }
 
@@ -62,7 +63,7 @@ namespace DeviceAPI.Repository
 
         public async Task<int> GetCountAsync()
         {
-            throw new NotImplementedException();
+            return await _table.CountAsync();
         }
     }
 }

@@ -2,18 +2,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using DeviceAPI.Dtos;
-using DeviceAPI.Models;
-using DeviceAPI.Repository;
-using DeviceAPI.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
-namespace DeviceAPI.Base
+using NetworkAPI.Dtos;
+using NetworkAPI.Models;
+using NetworkAPI.Repository;
+using NetworkAPI.Utils;
+
+namespace NetworkAPI.Controllers
 {
     public class BaseControllerAsync<TModel, TReadDto, TUpdateDto, TCreateDto> : ControllerBase
         where TModel : BaseModel
@@ -33,52 +35,59 @@ namespace DeviceAPI.Base
             _logger = logger;
         }
 
-        public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAllAsync()
+        public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAllAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation(LogEvents.ListResourses, "Retrieving All resources");
-            var entities = await _repository.GetAllAsync();
-            
+            var entities = await _repository.GetAllAsync(cancellationToken);
+
             return Ok(_mapper.Map<IEnumerable<TReadDto>>(entities));
         }
+
         // GET api/Model/{id} One use with id
         //[Authorize]
         [HttpGet("{id}")]
         [ActionName(nameof(GetAsync))]
         public virtual async Task<ActionResult<TReadDto>> GetAsync(Guid id)
         {
-           _logger.LogInformation(LogEvents.GetResourse, "Retrieving a resource");
+            _logger.LogInformation(LogEvents.GetResourse, "Retrieving a resource");
 
-           var entity = await _repository.GetByIdAsync(id);
+            var entity = await _repository.GetByIdAsync(id);
 
-           if (entity == null)
-           {
-               _logger.LogInformation(LogEvents.GetResourseNotFound, "{modelName} of ID {id}, does not exist", nameof(TModel), id.ToString());
-               return NotFound();
-           }
+            if (entity == null)
+            {
+                _logger.LogInformation(LogEvents.GetResourseNotFound, "{modelName} of ID {id}, does not exist",
+                    nameof(TModel), id.ToString());
+                return NotFound();
+            }
 
-           return Ok(_mapper.Map<TReadDto>(entity));
+            return Ok(_mapper.Map<TReadDto>(entity));
         }
 
         // POST api/Model
         [HttpPost]
         public virtual async Task<ActionResult<TReadDto>> CreateAsync(TCreateDto createDto)
         {
-            
+            var entity = _mapper.Map<TModel>(createDto);
+            await _repository.CreateAsync(entity);
+
+            return CreatedAtAction(nameof(GetAsync), new {id = entity.Id}, new { });
         }
+
         // PUT api/Model/{id}
         [HttpPut("{id}")]
         public virtual async Task<ActionResult> Update(Guid id, TUpdateDto updateDto)
         {
             var entity = await _repository.GetByIdAsync(id);
-            
+
             if (entity == null)
             {
-                _logger.LogInformation(LogEvents.GetResourseNotFound, "{modelName} of ID {id}, does not exist", nameof(TModel), id.ToString());
+                _logger.LogInformation(LogEvents.GetResourseNotFound, "{modelName} of ID {id}, does not exist",
+                    nameof(TModel), id.ToString());
                 return NotFound();
             }
 
             _mapper.Map(updateDto, entity);
-            
+
             _repository.UpdateAsync(entity);
             var isSaved = await _repository.SaveChangesAsync();
 
@@ -107,8 +116,7 @@ namespace DeviceAPI.Base
 
             // Map patched user to user which will update Db then save
             _mapper.Map(opToPatch, entity);
-            var result = await _repository.UpdateAsync(entity);
-            if (!result.Success) return BadRequest(result.Message);
+            _repository.UpdateAsync(entity);
             await _repository.SaveChangesAsync();
 
             return NoContent();
@@ -118,8 +126,7 @@ namespace DeviceAPI.Base
         [HttpDelete("{id}")]
         public virtual async Task<ActionResult> Delete(Guid id)
         {
-           
+            throw new NotImplementedException();
         }
-        
     }
 }
