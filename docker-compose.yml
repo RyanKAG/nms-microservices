@@ -1,8 +1,8 @@
 version: '3.4'
 
 services:
-#  deviceapi:
-#    image: ${DOCKER_REGISTRY-}deviceapi
+#  DeviceManagement.API:
+#    image: ${DOCKER_REGISTRY-}DeviceManagement.API
 #    build:
 #      context: .
-#      dockerfile: src/Services/DeviceAPI/Dockerfile
+#      dockerfile: src/Services/DeviceManagement.API/Dockerfile

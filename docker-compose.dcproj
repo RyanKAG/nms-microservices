@@ -6,7 +6,7 @@
     <ProjectGuid>69228a11-a2e6-442a-953c-b4d2e582f207</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
-    <DockerServiceName>deviceapi</DockerServiceName>
+    <DockerServiceName>DeviceManagement.API</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">
