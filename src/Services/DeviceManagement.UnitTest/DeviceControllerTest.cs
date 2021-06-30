@@ -12,15 +12,22 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace DeviceManagement.UnitTest
 {
     public class DeviceControllerTest
     {
+        private readonly ITestOutputHelper _testOutputHelper;
         private readonly Mock<IDeviceRepository> repoStub = new();
         private readonly Mock<ILogger<Device>> loggerStub = new();
         private readonly Mock<IMapper> mapperStub = new();
-        
+
+        public DeviceControllerTest(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
+
         [Fact]
         public async Task GetAsync_WithNonExistingDevice_ReturnsNotFound()
         {
@@ -33,8 +40,8 @@ namespace DeviceManagement.UnitTest
             var result = await controller.GetAsync(Guid.NewGuid());
             //Assert
             Assert.IsType<NotFoundResult>(result.Result);
-        } 
-        
+        }
+
         [Fact]
         public async Task GetAsync_WithExistingDevice_ReturnsOk()
         {
@@ -42,17 +49,24 @@ namespace DeviceManagement.UnitTest
             var expectedDevice = CreateRandomDevice();
             repoStub.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(expectedDevice);
-            // mapperStub.Setup(mapper => mapper.Map<DeviceReadDto>(It.IsAny<Device>()))
-            //     .Returns((Device source) => DeviceReadDto );
+            mapperStub.Setup(mapper => mapper.Map<DeviceReadDto>(It.IsAny<Device>()))
+                .Returns(new DeviceReadDto()
+                {
+                    Id = expectedDevice.Id,
+                    Name = expectedDevice.Name,
+                    Ip = expectedDevice.Ip,
+                    IsBlocked = expectedDevice.IsBlocked,
+                    MacAddress = expectedDevice.MacAddress,
+                });
             var controller = new DeviceController(repoStub.Object, mapperStub.Object, loggerStub.Object);
-            
+
             //Act
             var result = await controller.GetAsync(Guid.NewGuid());
-            
+
             //Assert
-            result.Value.Should().BeEquivalentTo(
-                expectedDevice, 
-                op => op.ComparingByMembers<Device>());
+            result.Result.Should().BeEquivalentTo(
+                expectedDevice,
+                op => op.ComparingByMembers<Device>().ExcludingMissingMembers());
         }
 
         private Device CreateRandomDevice()
@@ -68,6 +82,5 @@ namespace DeviceManagement.UnitTest
             // var dto = 
             return fakeDevice.Generate();
         }
-        
     }
 }

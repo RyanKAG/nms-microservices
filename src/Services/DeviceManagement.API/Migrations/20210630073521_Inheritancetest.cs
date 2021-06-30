@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DeviceManagement.API.Migrations
 {
-    public partial class init : Migration
+    public partial class Inheritancetest : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,7 +12,7 @@ namespace DeviceManagement.API.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Ip = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MacAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUsedDate = table.Column<DateTime>(type: "datetime2", nullable: false),

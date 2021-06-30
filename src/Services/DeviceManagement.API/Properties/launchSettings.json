@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Device.API": {
+    "DeviceManagement.API": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",

@@ -15,5 +15,6 @@ namespace DeviceManagement.API.Repository
         }
 
         public DbSet<Device> Devices { get; set; }
+        public DbSet<Mobile> Mobiles { get; set; }
     }
 }

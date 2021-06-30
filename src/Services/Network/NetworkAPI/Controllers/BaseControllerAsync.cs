@@ -17,6 +17,8 @@ using NetworkAPI.Utils;
 
 namespace NetworkAPI.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class BaseControllerAsync<TModel, TReadDto, TUpdateDto, TCreateDto> : ControllerBase
         where TModel : BaseModel
         where TReadDto : class, IDto
@@ -34,13 +36,13 @@ namespace NetworkAPI.Controllers
             _mapper = mapper;
             _logger = logger;
         }
-
+        [HttpGet]
         public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAllAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation(LogEvents.ListResourses, "Retrieving All resources");
             var entities = await _repository.GetAllAsync(cancellationToken);
 
-            return Ok(_mapper.Map<IEnumerable<TReadDto>>(entities));
+            return Ok(entities);
         }
 
         // GET api/Model/{id} One use with id
