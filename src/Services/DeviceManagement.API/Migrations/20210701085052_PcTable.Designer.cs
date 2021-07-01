@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DeviceManagement.API.Migrations
 {
     [DbContext(typeof(DeviceContext))]
-    [Migration("20210630073521_Inheritancetest")]
-    partial class Inheritancetest
+    [Migration("20210701085052_PcTable")]
+    partial class PcTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -29,6 +29,10 @@ namespace DeviceManagement.API.Migrations
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Ip")
                         .HasColumnType("nvarchar(max)");
@@ -55,6 +59,25 @@ namespace DeviceManagement.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Devices");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Device");
+                });
+
+            modelBuilder.Entity("DeviceManagement.API.Models.Mobile", b =>
+                {
+                    b.HasBaseType("DeviceManagement.API.Models.Device");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasDiscriminator().HasValue("Mobile");
+                });
+
+            modelBuilder.Entity("DeviceManagement.API.Models.Pc", b =>
+                {
+                    b.HasBaseType("DeviceManagement.API.Models.Device");
+
+                    b.HasDiscriminator().HasValue("Pc");
                 });
 #pragma warning restore 612, 618
         }

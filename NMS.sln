@@ -17,15 +17,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DeviceManagement", "DeviceM
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Network", "Network", "{CFBDB21B-97F4-477C-990A-3C3D2A5E38BA}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Organization", "Organization", "{2AE64753-B323-4F3C-A57C-AFDB1C08CFA0}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OrganizationManagement", "OrganizationManagement", "{2AE64753-B323-4F3C-A57C-AFDB1C08CFA0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Organization.API", "src\Services\Organization\Organization.API\Organization.API.csproj", "{02E0B88F-27BE-4D94-985C-1684BB61A7E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrganizationManagement.API", "src\Services\Organization\OrganizationManagement.API\OrganizationManagement.API.csproj", "{02E0B88F-27BE-4D94-985C-1684BB61A7E6}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{69228A11-A2E6-442A-953C-B4D2E582F207}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkAPI", "src\Services\Network\NetworkAPI\NetworkAPI.csproj", "{44F60FF3-C45A-4130-829F-995CC3816307}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceManagement.UnitTest", "src\Services\DeviceManagement.UnitTest\DeviceManagement.UnitTest.csproj", "{B88113CA-5B6B-428E-AAE8-540D103D4544}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Auth", "Auth", "{0F70134C-AD47-4EC2-8372-BD7C43E19D61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrganizationManagement.UnitTest", "src\Services\OrganizationManagement.UnitTest\OrganizationManagement.UnitTest.csproj", "{2E760F4B-74C7-4B1E-B65E-41447394729A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +57,10 @@ Global
 		{B88113CA-5B6B-428E-AAE8-540D103D4544}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B88113CA-5B6B-428E-AAE8-540D103D4544}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B88113CA-5B6B-428E-AAE8-540D103D4544}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E760F4B-74C7-4B1E-B65E-41447394729A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E760F4B-74C7-4B1E-B65E-41447394729A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E760F4B-74C7-4B1E-B65E-41447394729A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E760F4B-74C7-4B1E-B65E-41447394729A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -68,6 +76,8 @@ Global
 		{02E0B88F-27BE-4D94-985C-1684BB61A7E6} = {2AE64753-B323-4F3C-A57C-AFDB1C08CFA0}
 		{44F60FF3-C45A-4130-829F-995CC3816307} = {CFBDB21B-97F4-477C-990A-3C3D2A5E38BA}
 		{B88113CA-5B6B-428E-AAE8-540D103D4544} = {6DE18D47-F899-4582-9CE5-4E6BBF1E1A93}
+		{0F70134C-AD47-4EC2-8372-BD7C43E19D61} = {B1EC763F-7856-49F9-B2B2-B3D31FF718D0}
+		{2E760F4B-74C7-4B1E-B65E-41447394729A} = {2AE64753-B323-4F3C-A57C-AFDB1C08CFA0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C7406ECD-BC0A-45FD-A5D7-4C3688A7A484}

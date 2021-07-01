@@ -5,11 +5,11 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using NetworkAPI.Dtos;
-using NetworkAPI.Models;
-using NetworkAPI.Utils;
+using OrganizationManagement.API.Dtos;
+using OrganizationManagement.API.Models;
+using OrganizationManagement.API.Utils;
 
-namespace NetworkAPI.Repository
+namespace OrganizationManagement.API.Repository
 {
     public class BaseRepo<TModel> : IRepository<TModel>
         where TModel : BaseModel
@@ -36,7 +36,7 @@ namespace NetworkAPI.Repository
 
         public async Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancellationToken)
         {
-            PagedList<TModel> pagedList = await PagedList<TModel>.ToPagedList(_table, 1, 10, cancellationToken);
+            PagedList<TModel> pagedList = await PagedList<TModel>.ToPagedList(_table, 1, 5, cancellationToken);
             return pagedList.Entities;
         }
 

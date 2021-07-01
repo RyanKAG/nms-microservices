@@ -22,7 +22,7 @@ namespace NetworkAPI.Repository
         Task<Response<TModel>> CreateAsync(TModel model);
 
         void UpdateAsync(TModel model);
-        void DeleteAsync(TModel model);
+        void Delete(TModel model);
 
         Task<int> GetCountAsync();
     }

@@ -34,6 +34,11 @@ namespace DeviceManagement.API.Repository
             return await _table.FirstOrDefaultAsync(p => p.Id == id);
         }
 
+        public async Task<IEnumerable<TModel>> GetByListOfIdsAsync(IEnumerable<Guid> ids)
+        {
+            return await _table.Where(m => ids.Contains(m.Id)).ToListAsync();
+        }
+
         public async Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancellationToken)
         {
             PagedList<TModel> pagedList = await PagedList<TModel>.ToPagedList(_table, 1, 5, cancellationToken);
@@ -56,7 +61,7 @@ namespace DeviceManagement.API.Repository
             //noop
         }
 
-        public void DeleteAsync(TModel model)
+        public void Delete(TModel model)
         {
             _table.Remove(model);
         }

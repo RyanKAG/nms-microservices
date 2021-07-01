@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DeviceManagement.API.Migrations
 {
-    public partial class Inheritancetest : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -18,6 +18,8 @@ namespace DeviceManagement.API.Migrations
                     LastUsedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastUsedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsBlocked = table.Column<bool>(type: "bit", nullable: false),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },

@@ -36,13 +36,15 @@ namespace DeviceManagement.API.Controllers
             _mapper = mapper;
             _logger = logger;
         }
+
         [HttpGet]
         public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAllAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation(LogEvents.ListResourses, "Retrieving All resources");
             var entities = await _repository.GetAllAsync(cancellationToken);
 
-            return Ok(entities);
+
+            return Ok(_mapper.Map<IEnumerable<TReadDto>>(entities));
         }
 
         // GET api/Model/{id} One use with id
@@ -63,6 +65,24 @@ namespace DeviceManagement.API.Controllers
             }
 
             return Ok(_mapper.Map<TReadDto>(entity));
+        }
+        
+        [HttpPost("range")]
+        [ActionName(nameof(GetListAsync))]
+        public virtual async Task<ActionResult<TReadDto>> GetListAsync(IEnumerable<Guid> ids)
+        {
+            _logger.LogInformation(LogEvents.GetResourse, "Retrieving a resource");
+
+            var entities = await _repository.GetByListOfIdsAsync(ids);
+
+            if (entities == null)
+            {
+                // _logger.LogInformation(LogEvents.GetResourseNotFound, "{modelName} of ID {id}, does not exist",
+                //     nameof(TModel), id.ToString());
+                return NotFound();
+            }
+
+            return Ok(_mapper.Map<IEnumerable<TReadDto>>(entities));
         }
 
         // POST api/Model
@@ -128,7 +148,22 @@ namespace DeviceManagement.API.Controllers
         [HttpDelete("{id}")]
         public virtual async Task<ActionResult> Delete(Guid id)
         {
-            throw new NotImplementedException();
+            var entity = await _repository.GetByIdAsync(id);
+
+            _repository.Delete(entity);
+
+            try
+            {
+                var isSuccessful = await _repository.SaveChangesAsync();
+                if (!isSuccessful)
+                    return Problem(detail: "A server error has occured");
+            }
+            catch (Exception e)
+            {
+                _logger.LogCritical(exception: e, message: "Critical Error while saving changes");
+            }
+
+            return Ok();
         }
     }
 }

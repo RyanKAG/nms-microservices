@@ -10,12 +10,12 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
-using NetworkAPI.Dtos;
-using NetworkAPI.Models;
-using NetworkAPI.Repository;
-using NetworkAPI.Utils;
+using OrganizationManagement.API.Dtos;
+using OrganizationManagement.API.Models;
+using OrganizationManagement.API.Repository;
+using OrganizationManagement.API.Utils;
 
-namespace NetworkAPI.Controllers
+namespace OrganizationManagement.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -36,6 +36,7 @@ namespace NetworkAPI.Controllers
             _mapper = mapper;
             _logger = logger;
         }
+
         [HttpGet]
         public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAllAsync(CancellationToken cancellationToken)
         {
@@ -143,7 +144,7 @@ namespace NetworkAPI.Controllers
                 _logger.LogCritical(exception: e, message: "Critical Error while saving changes");
             }
 
-            return Ok();        
+            return Ok();
         }
     }
 }

@@ -6,16 +6,15 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
-using DeviceManagement.API.Dtos;
+using OrganizationManagement.API.Dtos;
 
-namespace DeviceManagement.API.Repository
+namespace OrganizationManagement.API.Repository
 {
     public interface IRepository<TModel>
     where TModel: class
     {
         Task<IQueryable<TModel>> Find(Expression<Func<TModel, bool>> expression);
         Task<TModel> GetByIdAsync(Guid id);
-        Task<IEnumerable<TModel>> GetByListOfIdsAsync(IEnumerable<Guid> ids);
         Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancellationToken);
 
         Task<bool> SaveChangesAsync();
