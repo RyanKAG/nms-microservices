@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using OrganizationManagement.API.Repository;
 
 namespace OrganizationManagement.API
 {
@@ -27,6 +29,11 @@ namespace OrganizationManagement.API
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddDbContext<AppDbContext>(op =>
+            {
+                op.UseSqlServer(Configuration["ConnectionStrings:DbConnectionString"]);
+            });
+            
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
