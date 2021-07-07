@@ -22,12 +22,17 @@ namespace Auth.API.Controllers
         private readonly IMapper _mapper;
         private readonly IConfiguration _config;
         private readonly ITokenManager _tokenManager;
-        public AuthController(UserManager<User> userManager, RoleManager<Role> roleManager, IMapper mapper, IConfiguration config)
+        private readonly SignInManager<User> _signInManager;
+
+
+        public AuthController(UserManager<User> userManager, RoleManager<Role> roleManager, IMapper mapper, IConfiguration config, ITokenManager tokenManager, SignInManager<User> signInManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _mapper = mapper;
             _config = config;
+            _tokenManager = tokenManager;
+            _signInManager = signInManager;
         }
 
         [HttpPost("/register")]
@@ -53,11 +58,47 @@ namespace Auth.API.Controllers
             
             var result = await _userManager.CreateAsync(user, registerDto.Password);
 
+            //create the role if role doesn't exist
             if (role == null)
                await _roleManager.CreateAsync(new Role(Role.Admin));
             await _userManager.AddToRoleAsync(user, Role.Admin);
             return Ok();
             
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult> login(LoginDto loginDto)
+        {
+            if (loginDto.Email == null && loginDto.UserName == null)
+            {
+                return BadRequest("At least Email or Username has to be sent");
+            }
+
+            User user = null;
+            
+            if (loginDto.Email != null)
+            {
+                user = await _userManager.FindByEmailAsync(loginDto.Email);
+            }
+            else if(loginDto.UserName != null)
+            {
+                user = await _userManager.FindByNameAsync(loginDto.UserName);
+            }
+
+            if (user == null)
+                return Unauthorized();
+
+
+            var isAuthenticated = await _userManager.CheckPasswordAsync(user, loginDto.Password);
+            var roles = await _userManager.GetRolesAsync(user);
+            if (isAuthenticated)
+            {
+                var key = _config["JWT:Key"];
+                var jwtToken = _tokenManager.GenerateJwt(key, _config["JWT:Issuer"], user, roles);
+                return Ok(new{token = jwtToken});
+            }
+
+            return Unauthorized();
         }
     }
 }

@@ -34,7 +34,7 @@ services:
       MSSQL_USER: ryan
       MSSQL_PASSWORD: ITSAMEMARIO
     ports:
-      - "1436:1433"
+      - "50000:1433"
     container_name: authDb
   
 #  DeviceManagement.API:
