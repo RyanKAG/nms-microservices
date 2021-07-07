@@ -54,7 +54,6 @@ namespace DeviceManagement.API
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DeviceManagement.API v1"));
-                PrepDb.PrepPopulation(app);
             }
 
             app.UseHttpsRedirection();
