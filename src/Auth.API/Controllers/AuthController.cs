@@ -35,7 +35,7 @@ namespace Auth.API.Controllers
             _signInManager = signInManager;
         }
 
-        [HttpPost("/register")]
+        [HttpPost("register")]
         public async Task<ActionResult> RegisterAdmin(RegisterDto registerDto)
         {
             var role = await _roleManager.FindByNameAsync(Role.Admin);
@@ -62,7 +62,7 @@ namespace Auth.API.Controllers
             if (role == null)
                await _roleManager.CreateAsync(new Role(Role.Admin));
             await _userManager.AddToRoleAsync(user, Role.Admin);
-            return Ok();
+            return *();
             
         }
 
