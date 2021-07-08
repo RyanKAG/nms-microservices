@@ -14,12 +14,12 @@ namespace Auth.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TestController : ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly IRoleRepository _repo;
         private readonly UserManager<User> _userManager;
 
-        public TestController(IRoleRepository repo, UserManager<User> userManager)
+        public UserController(IRoleRepository repo, UserManager<User> userManager)
         {
             _repo = repo;
             _userManager = userManager;

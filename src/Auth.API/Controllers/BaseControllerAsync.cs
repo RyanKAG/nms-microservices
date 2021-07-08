@@ -2,21 +2,21 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Auth.API.Dtos;
+using Auth.API.Repository;
+using Auth.API.Utils;
 using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using DeviceManagement.API.Dtos;
-using DeviceManagement.API.Models;
-using DeviceManagement.API.Repository;
-using DeviceManagement.API.Utils;
+using Auth.API.Models;
 
-namespace DeviceManagement.API.Controllers
+namespace Auth.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class BaseControllerAsync<TModel, TReadDto, TUpdateDto, TCreateDto> : ControllerBase
-        where TModel : BaseModel
+        where TModel : class, IModel
         where TReadDto : class, IDto
         where TCreateDto : class
         where TUpdateDto : class

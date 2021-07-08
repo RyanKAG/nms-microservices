@@ -62,7 +62,9 @@ namespace Auth.API.Controllers
             if (role == null)
                await _roleManager.CreateAsync(new Role(Role.Admin));
             await _userManager.AddToRoleAsync(user, Role.Admin);
-            return *();
+            
+            //TODO: Change the return to CreatedAt
+            return Ok();
             
         }
 
