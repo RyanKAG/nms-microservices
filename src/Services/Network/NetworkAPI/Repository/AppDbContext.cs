@@ -14,6 +14,6 @@ namespace NetworkAPI.Repository
         {
         }
 
-        public DbSet<Network> Devices { get; set; }
+        public DbSet<Network> Networks { get; set; }
     }
 }

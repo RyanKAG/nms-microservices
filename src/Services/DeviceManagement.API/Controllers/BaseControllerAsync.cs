@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using DeviceManagement.API.Dtos;
 using DeviceManagement.API.Models;
 using DeviceManagement.API.Repository;
 using DeviceManagement.API.Utils;
+using Newtonsoft.Json;
 
 namespace DeviceManagement.API.Controllers
 {
@@ -34,15 +36,23 @@ namespace DeviceManagement.API.Controllers
         }
 
         [HttpGet]
-        public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAllAsync(CancellationToken cancellationToken)
+        public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAllAsync(CancellationToken cancellationToken, [FromQuery] PaginationDto paginationDto)
         {
             _logger.LogInformation(LogEvents.ListResourses, "Retrieving All resources");
-            var entities = await _repository.GetAllAsync(cancellationToken);
-
-
-            return Ok(_mapper.Map<IEnumerable<TReadDto>>(entities));
+            var pagedList = await _repository.GetAllAsync(cancellationToken, paginationDto);
+            
+            var paginationMeta = new
+            {
+                pagedList.TotalCount,
+                pagedList.PageSize,
+                pagedList.CurrentPage,
+                pagedList.TotalPages,
+                pagedList.HasNext,
+                pagedList.HasPrevious
+            };
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMeta));
+            return Ok(_mapper.Map<IEnumerable<DeviceReadDto>>(pagedList));
         }
-
         // GET api/Model/{id} One use with id
         //[Authorize]
         [HttpGet("{id}")]
@@ -87,6 +97,7 @@ namespace DeviceManagement.API.Controllers
         {
             var entity = _mapper.Map<TModel>(createDto);
             await _repository.CreateAsync(entity);
+            await _repository.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetAsync), new {id = entity.Id}, new { });
         }

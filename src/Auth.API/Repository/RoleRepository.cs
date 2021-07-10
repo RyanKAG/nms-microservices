@@ -1,10 +1,6 @@
-﻿using System;
-using Auth.API.Models;
-using Microsoft.AspNetCore.Identity;
-
-namespace Auth.API.Repository
+﻿namespace Auth.API.Repository
 {
-    public class RoleRepository : BaseRepo<Role>, IRoleRepository
+    public class RoleRepository : BaseRepo<Models.Role>, IRoleRepository
     {
         public RoleRepository(AppDbContext context) : base(context)
         {

@@ -8,7 +8,7 @@ namespace NetworkAPI.Controllers
 {
     public class NetworkController : BaseControllerAsync<Network, NetworkReadDto, NetworkUpdateDto, NetworkCreateDto>
     {
-        public NetworkController(IRepository<Network> repository, IMapper mapper, ILogger<Network> logger) : base(repository, mapper, logger)
+        public NetworkController(INetworkRepository repository, IMapper mapper, ILogger<Network> logger) : base(repository, mapper, logger)
         {
             
         }

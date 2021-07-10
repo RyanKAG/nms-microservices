@@ -1,7 +1,4 @@
-﻿using System;
-using Auth.API.Models;
-using Microsoft.AspNetCore.Identity;
-
+﻿using Auth.API.Models;
 namespace Auth.API.Repository
 {
     public interface IRoleRepository : IRepository<Role>

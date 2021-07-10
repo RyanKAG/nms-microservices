@@ -34,7 +34,11 @@ namespace OrganizationManagement.API
                 op.UseSqlServer(Configuration["ConnectionStrings:DbConnectionString"]);
             });
             
+            services.AddAutoMapper(typeof(Startup));
+            
             services.AddControllers();
+            
+            services.AddScoped<IOrganizationRepository, OrganizationRepository>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "OrganizationManagement.API", Version = "v1" });

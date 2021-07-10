@@ -14,6 +14,7 @@ using NetworkAPI.Dtos;
 using NetworkAPI.Models;
 using NetworkAPI.Repository;
 using NetworkAPI.Utils;
+using Newtonsoft.Json;
 
 namespace NetworkAPI.Controllers
 {
@@ -36,15 +37,45 @@ namespace NetworkAPI.Controllers
             _mapper = mapper;
             _logger = logger;
         }
+        
         [HttpGet]
-        public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAllAsync(CancellationToken cancellationToken)
+        public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAllAsync(CancellationToken cancellationToken, [FromQuery] PaginationDto paginationDto)
         {
             _logger.LogInformation(LogEvents.ListResourses, "Retrieving All resources");
-            var entities = await _repository.GetAllAsync(cancellationToken);
-
-            return Ok(entities);
+            var pagedList = await _repository.GetAllAsync(cancellationToken, paginationDto);
+            
+            var paginationMeta = new
+            {
+                pagedList.TotalCount,
+                pagedList.PageSize,
+                pagedList.CurrentPage,
+                pagedList.TotalPages,
+                pagedList.HasNext,
+                pagedList.HasPrevious
+            };
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMeta));
+            return Ok(pagedList);
         }
 
+        
+        [HttpPost("range")]
+        [ActionName(nameof(GetListAsync))]
+        public virtual async Task<ActionResult<TReadDto>> GetListAsync(IEnumerable<Guid> ids)
+        {
+            _logger.LogInformation(LogEvents.GetResourse, "Retrieving a resource");
+
+            var entities = await _repository.GetByListOfIdsAsync(ids);
+
+            if (entities == null)
+            {
+                // _logger.LogInformation(LogEvents.GetResourseNotFound, "{modelName} of ID {id}, does not exist",
+                //     nameof(TModel), id.ToString());
+                return NotFound();
+            }
+
+            return Ok(_mapper.Map<IEnumerable<TReadDto>>(entities));
+        }
+        
         // GET api/Model/{id} One use with id
         //[Authorize]
         [HttpGet("{id}")]
@@ -72,6 +103,8 @@ namespace NetworkAPI.Controllers
             var entity = _mapper.Map<TModel>(createDto);
             await _repository.CreateAsync(entity);
 
+            await _repository.SaveChangesAsync();
+            
             return CreatedAtAction(nameof(GetAsync), new {id = entity.Id}, new { });
         }
 

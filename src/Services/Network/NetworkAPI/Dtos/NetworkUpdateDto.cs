@@ -2,8 +2,10 @@
 
 namespace NetworkAPI.Dtos
 {
-    public class NetworkUpdateDto : IDto
+    public class NetworkUpdateDto
     {
-        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string Ip { get; set; }
+        public string MacAddress { get; set; }    
     }
 }

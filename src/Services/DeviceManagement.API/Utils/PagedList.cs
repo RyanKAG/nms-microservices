@@ -22,7 +22,8 @@ namespace DeviceManagement.API.Utils
             PageSize = pageSize;
             CurrentPage = pageNumber;
             TotalPages = (int) Math.Ceiling(count / (double) pageSize);
-            Entities = items;
+            
+            AddRange(items);
         }
 
         public static async  Task<PagedList<T>> ToPagedList(IQueryable<T> source, int pageNumber, int pageSize, CancellationToken cancellationToken)

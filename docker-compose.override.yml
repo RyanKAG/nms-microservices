@@ -23,7 +23,19 @@ services:
       MSSQL_PASSWORD: ITSAMEMARIO
     ports:
       - "1435:1433"
-    container_name: orgDb  
+    container_name: orgDb 
+  
+  netDb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: 2astazeY
+      MSSQL_DB: dev
+      MSSQL_USER: ryan
+      MSSQL_PASSWORD: ITSAMEMARIO
+    ports:
+      - "1436:1433"
+    container_name: netDb 
     
   authDb:
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -34,7 +46,7 @@ services:
       MSSQL_USER: ryan
       MSSQL_PASSWORD: ITSAMEMARIO
     ports:
-      - "50000:1433"
+      - "1437:1433"
     container_name: authDb
   
 #  DeviceManagement.API:

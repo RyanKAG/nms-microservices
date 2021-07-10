@@ -39,10 +39,11 @@ namespace DeviceManagement.API.Repository
             return await _table.Where(m => ids.Contains(m.Id)).ToListAsync();
         }
 
-        public async Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<PagedList<TModel>> GetAllAsync(CancellationToken cancellationToken, PaginationDto paginationDto)
         {
-            PagedList<TModel> pagedList = await PagedList<TModel>.ToPagedList(_table, 1, 5, cancellationToken);
-            return pagedList.Entities;
+            PagedList<TModel> pagedList = await PagedList<TModel>.ToPagedList(_table, paginationDto.PageNumber, paginationDto.PageSize, cancellationToken);
+            
+            return pagedList;
         }
 
         public async Task<bool> SaveChangesAsync()

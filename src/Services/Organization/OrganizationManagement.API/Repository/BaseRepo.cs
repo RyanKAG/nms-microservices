@@ -34,10 +34,16 @@ namespace OrganizationManagement.API.Repository
             return await _table.FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<IEnumerable<TModel>> GetByListOfIdsAsync(IEnumerable<Guid> ids)
         {
-            PagedList<TModel> pagedList = await PagedList<TModel>.ToPagedList(_table, 1, 5, cancellationToken);
-            return pagedList.Entities;
+            return await _table.Where(m => ids.Contains(m.Id)).ToListAsync();
+        }
+        
+        public async Task<PagedList<TModel>> GetAllAsync(CancellationToken cancellationToken, PaginationDto paginationDto)
+        {
+            PagedList<TModel> pagedList = await PagedList<TModel>.ToPagedList(_table, paginationDto.PageNumber, paginationDto.PageSize, cancellationToken);
+            
+            return pagedList;
         }
 
         public async Task<bool> SaveChangesAsync()

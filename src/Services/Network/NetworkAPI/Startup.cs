@@ -6,11 +6,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using NetworkAPI.Repository;
 
 namespace NetworkAPI
 {
@@ -27,7 +29,14 @@ namespace NetworkAPI
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddDbContext<AppDbContext>(op =>
+            {
+                op.UseSqlServer(Configuration["ConnectionStrings:DbConnectionString"]);
+            });
+            
             services.AddControllers();
+            services.AddAutoMapper(typeof(Startup));
+            services.AddScoped<INetworkRepository, NetworkRepository>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NetworkAPI", Version = "v1" });

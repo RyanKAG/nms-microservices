@@ -1,8 +1,7 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Auth.API.Models;
-using Microsoft.AspNetCore.Identity;
+﻿using Auth.API.Models;
+using System;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Auth.API.Repository
 {

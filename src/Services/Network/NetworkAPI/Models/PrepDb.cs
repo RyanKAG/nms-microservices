@@ -22,13 +22,8 @@ namespace NetworkAPI.Models
         private static void SeedData(AppDbContext appDbContext)
         {
             appDbContext.Database.Migrate();
-            if (!appDbContext.Devices.Any())
-            {
-                // var fakeDevice = new Faker<Network>();
-                // List<Network> devices = fakeDevice.Generate(55);
-                // deviceContext.Devices.AddRange(devices);
-                // deviceContext.SaveChanges();
-            }
+            
+            
         }
     }
 }

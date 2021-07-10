@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using OrganizationManagement.API.Dtos;
 using OrganizationManagement.API.Models;
 using OrganizationManagement.API.Repository;
@@ -38,12 +39,22 @@ namespace OrganizationManagement.API.Controllers
         }
 
         [HttpGet]
-        public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAllAsync(CancellationToken cancellationToken)
+        public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAllAsync(CancellationToken cancellationToken, PaginationDto paginationDto)
         {
             _logger.LogInformation(LogEvents.ListResourses, "Retrieving All resources");
-            var entities = await _repository.GetAllAsync(cancellationToken);
-
-            return Ok(entities);
+            var pagedList = await _repository.GetAllAsync(cancellationToken, paginationDto);
+            
+            var paginationMeta = new
+            {
+                pagedList.TotalCount,
+                pagedList.PageSize,
+                pagedList.CurrentPage,
+                pagedList.TotalPages,
+                pagedList.HasNext,
+                pagedList.HasPrevious
+            };
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMeta));
+            return Ok(pagedList);
         }
 
         // GET api/Model/{id} One use with id
@@ -66,12 +77,31 @@ namespace OrganizationManagement.API.Controllers
             return Ok(_mapper.Map<TReadDto>(entity));
         }
 
+        [HttpPost("range")]
+        [ActionName(nameof(GetListAsync))]
+        public virtual async Task<ActionResult<TReadDto>> GetListAsync(IEnumerable<Guid> ids)
+        {
+            _logger.LogInformation(LogEvents.GetResourse, "Retrieving a resource");
+
+            var entities = await _repository.GetByListOfIdsAsync(ids);
+
+            if (entities == null)
+            {
+                // _logger.LogInformation(LogEvents.GetResourseNotFound, "{modelName} of ID {id}, does not exist",
+                //     nameof(TModel), id.ToString());
+                return NotFound();
+            }
+
+            return Ok(_mapper.Map<IEnumerable<TReadDto>>(entities));
+        }
         // POST api/Model
         [HttpPost]
         public virtual async Task<ActionResult<TReadDto>> CreateAsync(TCreateDto createDto)
         {
             var entity = _mapper.Map<TModel>(createDto);
             await _repository.CreateAsync(entity);
+            
+            await _repository.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetAsync), new {id = entity.Id}, new { });
         }
