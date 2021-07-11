@@ -4,7 +4,7 @@ services:
   deviceDb:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
-      ACCEPT_EULA: Y
+      ACCEPT_EULA: "Y"
       SA_PASSWORD: 2astazeY
       MSSQL_DB: dev
       MSSQL_USER: ryan
@@ -16,7 +16,7 @@ services:
   orgDb:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
-      ACCEPT_EULA: Y
+      ACCEPT_EULA: "Y"
       SA_PASSWORD: 2astazeY
       MSSQL_DB: dev
       MSSQL_USER: ryan
@@ -28,7 +28,7 @@ services:
   netDb:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
-      ACCEPT_EULA: Y
+      ACCEPT_EULA: "Y"
       SA_PASSWORD: 2astazeY
       MSSQL_DB: dev
       MSSQL_USER: ryan
@@ -40,7 +40,7 @@ services:
   authDb:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
-      ACCEPT_EULA: Y
+      ACCEPT_EULA: "Y"
       SA_PASSWORD: 2astazeY
       MSSQL_DB: dev
       MSSQL_USER: ryan
