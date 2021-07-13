@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using MassTransit;
+using MassTransit.RabbitMqTransport.Integration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -20,29 +22,30 @@ namespace NetworkAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BaseControllerAsync<TModel, TReadDto, TUpdateDto, TCreateDto> : ControllerBase
+    public class BaseControllerAsync<TModel, TReadDto, TUpdateDto, TCreateDto, CEvent> : ControllerBase
         where TModel : BaseModel
         where TReadDto : class, IDto
         where TCreateDto : class
         where TUpdateDto : class
     {
-        private readonly IRepository<TModel> _repository;
+        protected readonly IRepository<TModel> Repository;
         private readonly IMapper _mapper;
         private readonly ILogger<TModel> _logger;
+        private readonly IPublishEndpoint _pub;
 
-
-        public BaseControllerAsync(IRepository<TModel> repository, IMapper mapper, ILogger<TModel> logger)
+        public BaseControllerAsync(IRepository<TModel> repository, IMapper mapper, ILogger<TModel> logger, IPublishEndpoint pub)
         {
-            _repository = repository;
+            Repository = repository;
             _mapper = mapper;
             _logger = logger;
+            _pub = pub;
         }
-        
+
         [HttpGet]
         public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAllAsync(CancellationToken cancellationToken, [FromQuery] PaginationDto paginationDto)
         {
             _logger.LogInformation(LogEvents.ListResourses, "Retrieving All resources");
-            var pagedList = await _repository.GetAllAsync(cancellationToken, paginationDto);
+            var pagedList = await Repository.GetAllAsync(cancellationToken, paginationDto);
             
             var paginationMeta = new
             {
@@ -58,13 +61,22 @@ namespace NetworkAPI.Controllers
         }
 
         
+        [HttpHead("{id}")]
+        public virtual async Task<IActionResult> Check(Guid id)
+        {
+            _logger.LogInformation("Checking for {model} existance with ID: {id}", nameof(TModel), id);
+            var entity = await Repository.GetByIdAsync(id);
+
+            return entity != null ? Ok() : NotFound();
+        }
+        
         [HttpPost("range")]
         [ActionName(nameof(GetListAsync))]
         public virtual async Task<ActionResult<TReadDto>> GetListAsync(IEnumerable<Guid> ids)
         {
             _logger.LogInformation(LogEvents.GetResourse, "Retrieving a resource");
 
-            var entities = await _repository.GetByListOfIdsAsync(ids);
+            var entities = await Repository.GetByListOfIdsAsync(ids);
 
             if (entities == null)
             {
@@ -84,7 +96,7 @@ namespace NetworkAPI.Controllers
         {
             _logger.LogInformation(LogEvents.GetResourse, "Retrieving a resource");
 
-            var entity = await _repository.GetByIdAsync(id);
+            var entity = await Repository.GetByIdAsync(id);
 
             if (entity == null)
             {
@@ -101,9 +113,11 @@ namespace NetworkAPI.Controllers
         public virtual async Task<ActionResult<TReadDto>> CreateAsync(TCreateDto createDto)
         {
             var entity = _mapper.Map<TModel>(createDto);
-            await _repository.CreateAsync(entity);
+            await Repository.CreateAsync(entity);
 
-            await _repository.SaveChangesAsync();
+            await Repository.SaveChangesAsync();
+
+            await _pub.Publish(_mapper.Map<CEvent>(entity));
             
             return CreatedAtAction(nameof(GetAsync), new {id = entity.Id}, new { });
         }
@@ -112,7 +126,7 @@ namespace NetworkAPI.Controllers
         [HttpPut("{id}")]
         public virtual async Task<ActionResult> Update(Guid id, TUpdateDto updateDto)
         {
-            var entity = await _repository.GetByIdAsync(id);
+            var entity = await Repository.GetByIdAsync(id);
 
             if (entity == null)
             {
@@ -123,8 +137,8 @@ namespace NetworkAPI.Controllers
 
             _mapper.Map(updateDto, entity);
 
-            _repository.UpdateAsync(entity);
-            var isSaved = await _repository.SaveChangesAsync();
+            Repository.UpdateAsync(entity);
+            var isSaved = await Repository.SaveChangesAsync();
 
             return isSaved ? NoContent() : Problem("Could not update resource");
         }
@@ -134,7 +148,7 @@ namespace NetworkAPI.Controllers
         public virtual async Task<ActionResult> PartialUpdate(Guid id, JsonPatchDocument<TUpdateDto> patchDoc)
         {
             _logger.LogInformation(LogEvents.UpdateResourse, "Updating (patching) resourse {id}");
-            var entity = await _repository.GetByIdAsync(id);
+            var entity = await Repository.GetByIdAsync(id);
             if (entity == null)
             {
                 _logger.LogWarning(LogEvents.GetResourseNotFound, "Get({id}) NOT FOUND");
@@ -151,8 +165,8 @@ namespace NetworkAPI.Controllers
 
             // Map patched user to user which will update Db then save
             _mapper.Map(opToPatch, entity);
-            _repository.UpdateAsync(entity);
-            await _repository.SaveChangesAsync();
+            Repository.UpdateAsync(entity);
+            await Repository.SaveChangesAsync();
 
             return NoContent();
         }
@@ -161,13 +175,13 @@ namespace NetworkAPI.Controllers
         [HttpDelete("{id}")]
         public virtual async Task<ActionResult> Delete(Guid id)
         {
-            var entity = await _repository.GetByIdAsync(id);
+            var entity = await Repository.GetByIdAsync(id);
 
-            _repository.Delete(entity);
+            Repository.Delete(entity);
 
             try
             {
-                var isSuccessful = await _repository.SaveChangesAsync();
+                var isSuccessful = await Repository.SaveChangesAsync();
                 if (!isSuccessful)
                     return Problem(detail: "A server error has occured");
             }

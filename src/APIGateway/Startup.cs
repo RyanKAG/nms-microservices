@@ -44,7 +44,7 @@ namespace APIGateway
                          .WithOrigins("http://localhost", "http://localhost:8080", "http://localhost:5006", "http://localhost:5010");
                  }));
 
-            var key = Configuration["tokenKey"];
+            var key = Configuration["JWT:Key"];
             services.AddAuthentication(conf =>
             {
                 conf.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

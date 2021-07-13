@@ -1,4 +1,5 @@
 using AutoMapper;
+using Event.Messages.Events.NetworkEvents;
 using NetworkAPI.Dtos;
 using NetworkAPI.Models;
 
@@ -11,6 +12,7 @@ namespace NetworkAPI.Profiles
             CreateMap<Network, NetworkReadDto>();
             CreateMap<NetworkCreateDto, Network>();
             CreateMap<NetworkUpdateDto, Network>().ReverseMap();
+            CreateMap<Network, NetworkCreatedEvent>();
         }
     }
 }

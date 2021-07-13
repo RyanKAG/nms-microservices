@@ -19,6 +19,22 @@ namespace OrganizationManagement.API.Migrations
                 .HasAnnotation("ProductVersion", "5.0.7")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("OrganizationManagement.API.Models.Network", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.ToTable("Networks");
+                });
+
             modelBuilder.Entity("OrganizationManagement.API.Models.Organization", b =>
                 {
                     b.Property<Guid>("Id")
@@ -43,6 +59,20 @@ namespace OrganizationManagement.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Organizations");
+                });
+
+            modelBuilder.Entity("OrganizationManagement.API.Models.Network", b =>
+                {
+                    b.HasOne("OrganizationManagement.API.Models.Organization", "Organization")
+                        .WithMany("Networks")
+                        .HasForeignKey("OrganizationId");
+
+                    b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("OrganizationManagement.API.Models.Organization", b =>
+                {
+                    b.Navigation("Networks");
                 });
 #pragma warning restore 612, 618
         }

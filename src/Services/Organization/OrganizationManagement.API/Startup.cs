@@ -1,17 +1,13 @@
+using Event.Messages.Events;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using OrganizationManagement.API.EventBusConsumer;
 using OrganizationManagement.API.Repository;
 
 namespace OrganizationManagement.API
@@ -37,7 +33,26 @@ namespace OrganizationManagement.API
             services.AddAutoMapper(typeof(Startup));
             
             services.AddControllers();
-            
+
+            services.AddMassTransit(config =>
+            {
+
+                config.AddConsumer<NetworkCreatedConsumer>();
+                config.UsingRabbitMq((ctx, cfg) =>
+                {
+                    var username = Configuration["RabbitMQ:Username"];
+                    var password = Configuration["RabbitMQ:Password"];
+                    var portString = Configuration["RabbitMQ:Port"];
+                    var port = portString.Length == 0 ? "" : ":" + portString;
+                    var host = Configuration["RabbitMQ:Host"];
+                    var connection = $"amqp://{username}:{password}@{host}{port}/";
+                    cfg.Host(connection);
+                    cfg.ReceiveEndpoint(EventBusConstants.NetworkCreatedQueue,
+                        c => c.ConfigureConsumer<NetworkCreatedConsumer>(ctx)
+                    );
+                });
+            });
+            services.AddMassTransitHostedService();
             services.AddScoped<IOrganizationRepository, OrganizationRepository>();
             services.AddSwaggerGen(c =>
             {

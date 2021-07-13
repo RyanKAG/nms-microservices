@@ -12,7 +12,7 @@ services:
     ports:
       - "1434:1433"
     container_name: deviceDb
-    
+  
   orgDb:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
@@ -48,6 +48,16 @@ services:
     ports:
       - "1437:1433"
     container_name: authDb
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
   
 #  DeviceManagement.API:
 #    environment:

@@ -21,7 +21,6 @@ namespace Auth.API.Utils.JWT
                 new Claim("Id",
                     user.Id.ToString()),
                 new Claim("Role", "test"),
-                new Claim("Role", "test2"),
             };
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));

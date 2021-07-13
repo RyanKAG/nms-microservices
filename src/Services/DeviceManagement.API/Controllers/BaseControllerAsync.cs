@@ -11,36 +11,49 @@ using DeviceManagement.API.Dtos;
 using DeviceManagement.API.Models;
 using DeviceManagement.API.Repository;
 using DeviceManagement.API.Utils;
+using MassTransit;
 using Newtonsoft.Json;
 
 namespace DeviceManagement.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BaseControllerAsync<TModel, TReadDto, TUpdateDto, TCreateDto> : ControllerBase
+    public class BaseControllerAsync<TModel, TReadDto, TUpdateDto, TCreateDto, CEvent, DEvent, UEvent> : ControllerBase
         where TModel : BaseModel
         where TReadDto : class, IDto
         where TCreateDto : class
         where TUpdateDto : class
     {
-        private readonly IRepository<TModel> _repository;
-        private readonly IMapper _mapper;
-        private readonly ILogger<TModel> _logger;
+        protected readonly IRepository<TModel> Repository;
+        protected readonly IMapper Mapper;
+        protected readonly ILogger<TModel> Logger;
+        protected readonly IPublishEndpoint Pub;
 
 
-        public BaseControllerAsync(IRepository<TModel> repository, IMapper mapper, ILogger<TModel> logger)
+        public BaseControllerAsync(IRepository<TModel> repository, IMapper mapper, ILogger<TModel> logger, IPublishEndpoint pub)
         {
-            _repository = repository;
-            _mapper = mapper;
-            _logger = logger;
+            Repository = repository;
+            Mapper = mapper;
+            Logger = logger;
+            Pub = pub;
         }
 
+        [HttpHead("{id}")]
+        public virtual async Task<IActionResult> Check(Guid id)
+        {
+            Logger.LogInformation("Checking for {model} existance with ID: {id}", nameof(TModel), id);
+            var entity = await Repository.GetByIdAsync(id);
+
+            return entity != null ? Ok() : NotFound();
+        }
+        
         [HttpGet]
         public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAllAsync(CancellationToken cancellationToken, [FromQuery] PaginationDto paginationDto)
         {
-            _logger.LogInformation(LogEvents.ListResourses, "Retrieving All resources");
-            var pagedList = await _repository.GetAllAsync(cancellationToken, paginationDto);
-            
+            Logger.LogInformation(LogEvents.ListResourses, "Retrieving All resources");
+            var pagedList = await Repository.GetAllAsync(cancellationToken, paginationDto);
+            await Pub.Publish(Mapper.Map<DEvent>(new Device(){Id = Guid.NewGuid()}));
+
             var paginationMeta = new
             {
                 pagedList.TotalCount,
@@ -51,7 +64,7 @@ namespace DeviceManagement.API.Controllers
                 pagedList.HasPrevious
             };
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMeta));
-            return Ok(_mapper.Map<IEnumerable<DeviceReadDto>>(pagedList));
+            return Ok(Mapper.Map<IEnumerable<DeviceReadDto>>(pagedList));
         }
         // GET api/Model/{id} One use with id
         //[Authorize]
@@ -59,27 +72,27 @@ namespace DeviceManagement.API.Controllers
         [ActionName(nameof(GetAsync))]
         public virtual async Task<ActionResult<TReadDto>> GetAsync(Guid id)
         {
-            _logger.LogInformation(LogEvents.GetResourse, "Retrieving a resource");
+            Logger.LogInformation(LogEvents.GetResourse, "Retrieving a resource");
 
-            var entity = await _repository.GetByIdAsync(id);
+            var entity = await Repository.GetByIdAsync(id);
 
             if (entity == null)
             {
-                _logger.LogInformation(LogEvents.GetResourseNotFound, "{modelName} of ID {id}, does not exist",
+                Logger.LogInformation(LogEvents.GetResourseNotFound, "{modelName} of ID {id}, does not exist",
                     nameof(TModel), id.ToString());
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<TReadDto>(entity));
+            return Ok(Mapper.Map<TReadDto>(entity));
         }
         
         [HttpPost("range")]
         [ActionName(nameof(GetListAsync))]
         public virtual async Task<ActionResult<TReadDto>> GetListAsync(IEnumerable<Guid> ids)
         {
-            _logger.LogInformation(LogEvents.GetResourse, "Retrieving a resource");
+            Logger.LogInformation(LogEvents.GetResourse, "Retrieving a resource");
 
-            var entities = await _repository.GetByListOfIdsAsync(ids);
+            var entities = await Repository.GetByListOfIdsAsync(ids);
 
             if (entities == null)
             {
@@ -88,17 +101,19 @@ namespace DeviceManagement.API.Controllers
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<IEnumerable<TReadDto>>(entities));
+            return Ok(Mapper.Map<IEnumerable<TReadDto>>(entities));
         }
 
         // POST api/Model
         [HttpPost]
         public virtual async Task<ActionResult<TReadDto>> CreateAsync(TCreateDto createDto)
         {
-            var entity = _mapper.Map<TModel>(createDto);
-            await _repository.CreateAsync(entity);
-            await _repository.SaveChangesAsync();
-
+            var entity = Mapper.Map<TModel>(createDto);
+            await Repository.CreateAsync(entity);
+            await Repository.SaveChangesAsync();
+            
+            await Pub.Publish(Mapper.Map<CEvent>(entity));
+            
             return CreatedAtAction(nameof(GetAsync), new {id = entity.Id}, new { });
         }
 
@@ -106,19 +121,19 @@ namespace DeviceManagement.API.Controllers
         [HttpPut("{id}")]
         public virtual async Task<ActionResult> Update(Guid id, TUpdateDto updateDto)
         {
-            var entity = await _repository.GetByIdAsync(id);
+            var entity = await Repository.GetByIdAsync(id);
 
             if (entity == null)
             {
-                _logger.LogInformation(LogEvents.GetResourseNotFound, "{modelName} of ID {id}, does not exist",
+                Logger.LogInformation(LogEvents.GetResourseNotFound, "{modelName} of ID {id}, does not exist",
                     nameof(TModel), id.ToString());
                 return NotFound();
             }
 
-            _mapper.Map(updateDto, entity);
+            Mapper.Map(updateDto, entity);
 
-            _repository.UpdateAsync(entity);
-            var isSaved = await _repository.SaveChangesAsync();
+            Repository.UpdateAsync(entity);
+            var isSaved = await Repository.SaveChangesAsync();
 
             return isSaved ? NoContent() : Problem("Could not update resource");
         }
@@ -127,16 +142,16 @@ namespace DeviceManagement.API.Controllers
         [HttpPatch("{id}")]
         public virtual async Task<ActionResult> PartialUpdate(Guid id, JsonPatchDocument<TUpdateDto> patchDoc)
         {
-            _logger.LogInformation(LogEvents.UpdateResourse, "Updating (patching) resourse {id}");
-            var entity = await _repository.GetByIdAsync(id);
+            Logger.LogInformation(LogEvents.UpdateResourse, "Updating (patching) resourse {id}");
+            var entity = await Repository.GetByIdAsync(id);
             if (entity == null)
             {
-                _logger.LogWarning(LogEvents.GetResourseNotFound, "Get({id}) NOT FOUND");
+                Logger.LogWarning(LogEvents.GetResourseNotFound, "Get({id}) NOT FOUND");
                 return NotFound();
             }
 
             // mapp TModel to user dto then try to apple the patch doc to it.
-            var opToPatch = _mapper.Map<TUpdateDto>(entity);
+            var opToPatch = Mapper.Map<TUpdateDto>(entity);
             patchDoc.ApplyTo(opToPatch, ModelState);
             if (!TryValidateModel(entity))
             {
@@ -144,9 +159,9 @@ namespace DeviceManagement.API.Controllers
             }
 
             // Map patched user to user which will update Db then save
-            _mapper.Map(opToPatch, entity);
-            _repository.UpdateAsync(entity);
-            await _repository.SaveChangesAsync();
+            Mapper.Map(opToPatch, entity);
+            Repository.UpdateAsync(entity);
+            await Repository.SaveChangesAsync();
 
             return NoContent();
         }
@@ -155,21 +170,26 @@ namespace DeviceManagement.API.Controllers
         [HttpDelete("{id}")]
         public virtual async Task<ActionResult> Delete(Guid id)
         {
-            var entity = await _repository.GetByIdAsync(id);
+            var entity = await Repository.GetByIdAsync(id);
 
-            _repository.Delete(entity);
+            if (entity == null)
+                return NoContent();
+            
+            Repository.Delete(entity);
 
             try
             {
-                var isSuccessful = await _repository.SaveChangesAsync();
+                var isSuccessful = await Repository.SaveChangesAsync();
                 if (!isSuccessful)
                     return Problem(detail: "A server error has occured");
             }
             catch (Exception e)
             {
-                _logger.LogCritical(exception: e, message: "Critical Error while saving changes");
+                Logger.LogCritical(exception: e, message: "Critical Error while saving changes");
             }
 
+            
+            await Pub.Publish(Mapper.Map<DEvent>(entity));
             return Ok();
         }
     }

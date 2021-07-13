@@ -77,6 +77,27 @@
       ]
     },
     {
+      "DownstreamPathTemplate": "/api/organization/{id}/network/{networkId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5003
+        }
+      ],
+      "UpstreamPathTemplate": "/organization/{id}/network/{networkId}",
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "ApiSecurity",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "Role": "test"
+      }
+    },
+    {
       "DownstreamPathTemplate": "/api/network",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -105,6 +126,20 @@
       "UpstreamPathTemplate": "/network/{id}",
       "UpstreamHttpMethod": [
         "GET"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/network/{id}/device/{deviceId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5002
+        }
+      ],
+      "UpstreamPathTemplate": "/network/{id}/device/{deviceId}",
+      "UpstreamHttpMethod": [
+        "POST"
       ]
     }
   ],

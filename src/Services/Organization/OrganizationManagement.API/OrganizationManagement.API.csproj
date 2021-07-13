@@ -16,9 +16,16 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="MassTransit" Version="7.2.1" />
+    <PackageReference Include="MassTransit.AspNetCore" Version="7.2.1" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="7.2.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.7" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Event.Messages\Event.Messages.csproj" />
   </ItemGroup>
 
 </Project>

@@ -19,6 +19,32 @@ namespace NetworkAPI.Migrations
                 .HasAnnotation("ProductVersion", "5.0.7")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("DeviceNetwork", b =>
+                {
+                    b.Property<Guid>("ConnectedDevicesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("NetworksId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ConnectedDevicesId", "NetworksId");
+
+                    b.HasIndex("NetworksId");
+
+                    b.ToTable("DeviceNetwork");
+                });
+
+            modelBuilder.Entity("NetworkAPI.Models.Device", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Devices");
+                });
+
             modelBuilder.Entity("NetworkAPI.Models.Network", b =>
                 {
                     b.Property<Guid>("Id")
@@ -45,17 +71,19 @@ namespace NetworkAPI.Migrations
                     b.ToTable("Networks");
                 });
 
-            modelBuilder.Entity("NetworkAPI.Models.NetworkDevice", b =>
+            modelBuilder.Entity("DeviceNetwork", b =>
                 {
-                    b.Property<Guid>("NetworkId")
-                        .HasColumnType("uniqueidentifier");
+                    b.HasOne("NetworkAPI.Models.Device", null)
+                        .WithMany()
+                        .HasForeignKey("ConnectedDevicesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Property<Guid>("DeviceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("NetworkId", "DeviceId");
-
-                    b.ToTable("NetworkDevice");
+                    b.HasOne("NetworkAPI.Models.Network", null)
+                        .WithMany()
+                        .HasForeignKey("NetworksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

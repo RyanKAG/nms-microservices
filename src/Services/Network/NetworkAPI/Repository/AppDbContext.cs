@@ -12,9 +12,12 @@ namespace NetworkAPI.Repository
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<NetworkDevice>().HasKey(e => new {e.NetworkId, e.DeviceId});
+            // builder.Entity<NetworkDevice>()
+            //     .HasKey(e => new {e.NetworkId, e.DeviceId});
         }
 
         public DbSet<Network> Networks { get; set; }
+        public DbSet<Device> Devices { get; set; }
+        
     }
 }

@@ -14,13 +14,13 @@ namespace OrganizationManagement.API.Repository
     public class BaseRepo<TModel> : IRepository<TModel>
         where TModel : BaseModel
     {
-        protected readonly AppDbContext _context;
+        protected readonly AppDbContext Context;
         private readonly DbSet<TModel> _table;
 
         public BaseRepo(AppDbContext context)
         {
-            _context = context;
-            _table = _context.Set<TModel>();
+            Context = context;
+            _table = Context.Set<TModel>();
         }
 
 
@@ -48,7 +48,7 @@ namespace OrganizationManagement.API.Repository
 
         public async Task<bool> SaveChangesAsync()
         {
-            return await _context.SaveChangesAsync() >= 0;
+            return await Context.SaveChangesAsync() >= 0;
         }
 
         public async Task<Response<TModel>> CreateAsync(TModel model)

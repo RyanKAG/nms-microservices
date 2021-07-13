@@ -26,23 +26,32 @@ namespace OrganizationManagement.API.Controllers
         where TCreateDto : class
         where TUpdateDto : class
     {
-        private readonly IRepository<TModel> _repository;
+        protected readonly IRepository<TModel> Repository;
         private readonly IMapper _mapper;
         private readonly ILogger<TModel> _logger;
 
 
         public BaseControllerAsync(IRepository<TModel> repository, IMapper mapper, ILogger<TModel> logger)
         {
-            _repository = repository;
+            Repository = repository;
             _mapper = mapper;
             _logger = logger;
         }
 
+        [HttpHead("{id}")]
+        public virtual async Task<IActionResult> Check(Guid id)
+        {
+            _logger.LogInformation("Checking for {model} existance with ID: {id}", nameof(TModel), id);
+            var entity = await Repository.GetByIdAsync(id);
+
+            return entity != null ? Ok() : NotFound();
+        }
+        
         [HttpGet]
-        public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAllAsync(CancellationToken cancellationToken, PaginationDto paginationDto)
+        public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAllAsync(CancellationToken cancellationToken, [FromQuery]PaginationDto paginationDto)
         {
             _logger.LogInformation(LogEvents.ListResourses, "Retrieving All resources");
-            var pagedList = await _repository.GetAllAsync(cancellationToken, paginationDto);
+            var pagedList = await Repository.GetAllAsync(cancellationToken, paginationDto);
             
             var paginationMeta = new
             {
@@ -65,7 +74,7 @@ namespace OrganizationManagement.API.Controllers
         {
             _logger.LogInformation(LogEvents.GetResourse, "Retrieving a resource");
 
-            var entity = await _repository.GetByIdAsync(id);
+            var entity = await Repository.GetByIdAsync(id);
 
             if (entity == null)
             {
@@ -83,7 +92,7 @@ namespace OrganizationManagement.API.Controllers
         {
             _logger.LogInformation(LogEvents.GetResourse, "Retrieving a resource");
 
-            var entities = await _repository.GetByListOfIdsAsync(ids);
+            var entities = await Repository.GetByListOfIdsAsync(ids);
 
             if (entities == null)
             {
@@ -99,9 +108,9 @@ namespace OrganizationManagement.API.Controllers
         public virtual async Task<ActionResult<TReadDto>> CreateAsync(TCreateDto createDto)
         {
             var entity = _mapper.Map<TModel>(createDto);
-            await _repository.CreateAsync(entity);
+            await Repository.CreateAsync(entity);
             
-            await _repository.SaveChangesAsync();
+            await Repository.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetAsync), new {id = entity.Id}, new { });
         }
@@ -110,7 +119,7 @@ namespace OrganizationManagement.API.Controllers
         [HttpPut("{id}")]
         public virtual async Task<ActionResult> Update(Guid id, TUpdateDto updateDto)
         {
-            var entity = await _repository.GetByIdAsync(id);
+            var entity = await Repository.GetByIdAsync(id);
 
             if (entity == null)
             {
@@ -121,8 +130,8 @@ namespace OrganizationManagement.API.Controllers
 
             _mapper.Map(updateDto, entity);
 
-            _repository.UpdateAsync(entity);
-            var isSaved = await _repository.SaveChangesAsync();
+            Repository.UpdateAsync(entity);
+            var isSaved = await Repository.SaveChangesAsync();
 
             return isSaved ? NoContent() : Problem("Could not update resource");
         }
@@ -132,7 +141,7 @@ namespace OrganizationManagement.API.Controllers
         public virtual async Task<ActionResult> PartialUpdate(Guid id, JsonPatchDocument<TUpdateDto> patchDoc)
         {
             _logger.LogInformation(LogEvents.UpdateResourse, "Updating (patching) resourse {id}");
-            var entity = await _repository.GetByIdAsync(id);
+            var entity = await Repository.GetByIdAsync(id);
             if (entity == null)
             {
                 _logger.LogWarning(LogEvents.GetResourseNotFound, "Get({id}) NOT FOUND");
@@ -149,8 +158,8 @@ namespace OrganizationManagement.API.Controllers
 
             // Map patched user to user which will update Db then save
             _mapper.Map(opToPatch, entity);
-            _repository.UpdateAsync(entity);
-            await _repository.SaveChangesAsync();
+            Repository.UpdateAsync(entity);
+            await Repository.SaveChangesAsync();
 
             return NoContent();
         }
@@ -159,13 +168,13 @@ namespace OrganizationManagement.API.Controllers
         [HttpDelete("{id}")]
         public virtual async Task<ActionResult> Delete(Guid id)
         {
-            var entity = await _repository.GetByIdAsync(id);
+            var entity = await Repository.GetByIdAsync(id);
 
-            _repository.Delete(entity);
+            Repository.Delete(entity);
 
             try
             {
-                var isSuccessful = await _repository.SaveChangesAsync();
+                var isSuccessful = await Repository.SaveChangesAsync();
                 if (!isSuccessful)
                     return Problem(detail: "A server error has occured");
             }

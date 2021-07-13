@@ -13,6 +13,10 @@
     <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
     <PackageReference Include="Bogus" Version="33.0.2" />
+    <PackageReference Include="MassTransit" Version="7.2.1" />
+    <PackageReference Include="MassTransit.AspNetCore" Version="7.2.1" />
+    <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="7.2.1" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="7.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="5.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.7" />
@@ -32,6 +36,10 @@
     <Folder Include="Models\" />
     <Folder Include="Repository\" />
     <Folder Include="Profiles\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\BuildingBlocks\Event.Messages\Event.Messages.csproj" />
   </ItemGroup>
 
 </Project>

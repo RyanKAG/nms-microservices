@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
 using NetworkAPI.Dtos;
+using NetworkAPI.Models;
 using NetworkAPI.Utils;
 
 namespace NetworkAPI.Repository

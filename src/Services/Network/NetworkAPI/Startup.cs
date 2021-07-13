@@ -1,18 +1,18 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Event.Messages.Events;
+using Event.Messages.Events.DeviceEvents;
+using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using NetworkAPI.EventBusConsumer;
 using NetworkAPI.Repository;
+using NetworkAPI.Models;
 
 namespace NetworkAPI
 {
@@ -34,6 +34,30 @@ namespace NetworkAPI
                 op.UseSqlServer(Configuration["ConnectionStrings:DbConnectionString"]);
             });
             
+            services.AddMassTransit(config =>
+            {
+
+                config.AddConsumer<DeviceDeletedConsumer>();
+                config.AddConsumer<DeviceCreatedConsumer>();
+                config.UsingRabbitMq((ctx, cfg) =>
+                {
+                    var username = Configuration["RabbitMQ:Username"];
+                    var password = Configuration["RabbitMQ:Password"];
+                    var portString = Configuration["RabbitMQ:Port"];
+                    var port = portString.Length == 0 ? "" : ":" + portString;
+                    var host = Configuration["RabbitMQ:Host"];
+                    var connection = $"amqp://{username}:{password}@{host}{port}/";
+                    Console.WriteLine(connection);
+                    cfg.Host(connection);
+                    cfg.ReceiveEndpoint(EventBusConstants.DeviceDeletedQueue,
+                        c => c.ConfigureConsumer<DeviceDeletedConsumer>(ctx)
+                    );
+                    cfg.ReceiveEndpoint(EventBusConstants.DeviceCreatedQueue,
+                        c => c.ConfigureConsumer<DeviceCreatedConsumer>(ctx)
+                    );
+                });
+            });
+            services.AddMassTransitHostedService();
             services.AddControllers();
             services.AddAutoMapper(typeof(Startup));
             services.AddScoped<INetworkRepository, NetworkRepository>();
@@ -51,6 +75,7 @@ namespace NetworkAPI
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NetworkAPI v1"));
+                PrepDb.PrepPopulation(app);
             }
 
             app.UseHttpsRedirection();

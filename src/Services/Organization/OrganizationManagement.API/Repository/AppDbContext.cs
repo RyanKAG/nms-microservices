@@ -15,5 +15,6 @@ namespace OrganizationManagement.API.Repository
         }
 
         public DbSet<Organization> Organizations { get; set; }
+        public DbSet<Network> Networks { get; set; }
     }
 }
